@@ -35,7 +35,15 @@ def connect_to_database_and_execute(databaseCommand):
 
 def get_category_for_media( mediaId ):
     catagorie_to_media_map = connect_to_database_and_execute( 'select * from mediaToCategoryMap where mediaId = ' + str( mediaId ) )
-    print( catagorie_to_media_map )
+    category = connect_to_database_and_execute( 'select * from categories' )
+
+    mediaCatagories = []
+    for cat in category:
+        for cmap in catagorie_to_media_map:
+            if cmap['categoryId'] == cat['categoryId']:
+                mediaCatagories.append(cat['name'])
+
+    return mediaCatagories
 
 
 @get(API_ENTRY_POINT + '/movies')
@@ -43,7 +51,9 @@ def movies():
     response.content_type = 'application/json'
     movies = connect_to_database_and_execute('select * from mediaData where type = "movie"')
 
-    get_category_for_media( movies[0]['id'] )
+    for movie in movies:
+        genre = get_category_for_media( movie['id'] )
+        movie['genre'] = genre
 
     return json.dumps(movies)
 
@@ -52,6 +62,10 @@ def movies():
 def series():
     response.content_type = 'application/json'
     series = connect_to_database_and_execute('select * from mediaData where type = "tv-series"')
+
+    for serie in series:
+        genre = get_category_for_media( serie['id'] )
+        serie['genre'] = genre
 
     return json.dumps(series)
 
