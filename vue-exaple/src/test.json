@@ -1,0 +1,56 @@
+{
+    "adObject": {
+        "airyAdConfig": {
+            "adLoadTimeoutMillis": 3000,
+            "adType": "pre-roll",
+            "adUnwrapTimeoutMillis": 3000,
+            "skipAd": true,
+            "skipAdAfterSeconds": 5,
+            "skipAdLongerThanSeconds": 20
+        },
+        "listindex": null
+    },
+    "videoPlayerObject": {
+        "video": {
+            "aspectRatio": 1.77,
+            "autoPlay": true,
+            "cdn": "cf",
+            "customCssClass": "inline",
+            "customPlayerCssClass": "inline",
+            "feature": "Inline",
+            "ffname": "auto",
+            "foresterClientId": "ImdbWeb",
+            "height": 480,
+            "id": "",
+            "isReplayable": true,
+            "isResponsive": true,
+            "mature": false,
+            "notifyParentOnVideoPlayCompletion": true,
+            "partyContext": "imdb",
+            "playbackMode": "html",
+            "playerConfig": {
+                "cssUrl": "https://images-na.ssl-images-amazon.com/images/G/01/vap/video/airy2//prod/2.0.1459.0/css/imdb._TTW_.css",
+                "jsUrl": "https://images-na.ssl-images-amazon.com/images/G/01/vap/video/airy2//prod/2.0.1459.0/js/airy.ads._TTW_.js",
+                "skinUrl": "https://images-na.ssl-images-amazon.com/images/G/01/vap/video/airy2//prod/2.0.1459.0/skins/imdb._TTW_.js",
+                "swfUrl": "https://images-na.ssl-images-amazon.com/images/G/01/vap/video/airy2//prod/2.0.1459.0/flash/AiryFlashlsRenderer._TTW_.swf"
+            },
+            "replayable": true,
+            "responsive": true,
+            "slate": "https://m.media-amazon.com/images/M/MV5BMmMyOWYwMDUtOTE0ZS00OTIwLTkwY2QtOWU3Mzc5ZjhhZTc5XkEyXkFqcGdeQXRyYW5zY29kZS13b3JrZmxvdw@@._V1_.jpg",
+            "start": 0,
+            "startPlaybackMetricsUrl": "/tr/?pt=video&spt=inline&ht=pageHit&pat=main&rrid=BT4P97F2RENVW1KDRY3P&const=vi3281501977&res=auto&pid=BT4P97F2RENVW1KDRY3P&mc=VideoPlayerPageModelFactory.createModel.NoAvailableEncodings%3D0.0",
+            "viconst": "vi3281501977",
+            "videoInfoList": [
+                {
+                    "videoMimeType": "application/x-mpegURL",
+                    "videoUrl": "https://imdb-video.media-imdb.com/vi3281501977/hls-1568997815672-master.m3u8?Expires=1569542828&Signature=Hpy5jYkbwxqgPUNf51rHnZ9er9SwxKj0PAwoUFkJXWYSrHksUfIA1cIpOnPe~ZRWECDntSiNUr9r7hskQi5CINTqmyCwZmilgXw1J5U8aBR1dUXt6Yttjp~qWGmwWp0JT7SiI2tneMT~JtP7nNLta6gexo0Ite8i0Jg9kcJQnGx~XhMzjL6yweoSQFqNuWnZN~shRzA~~9KRMjHZagzjDngxdx-gEmEFR3dMb68uk9a6SCdPzPyRXqbWxA3qcLXqvD6iMwoZ81q-os58ik8ppkEoHOYq~oWZuV0WI0KkO3P7Uva73Obbc5n~G1~xhTZjn19ZAYKHyv0sY909JKQ6FQ__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA"
+                },
+                {
+                    "videoMimeType": "video/mp4",
+                    "videoUrl": "https://imdb-video.media-imdb.com/vi3281501977/1434659454657-dx9ykf-1568997815672.mp4?Expires=1569542828&Signature=G0i5pCfNMZS2-Tp568YTp-KnJgUKx9akS5zKST2vKEYpB-nkspFHd2qGvDBcbxDXt53Jk2LQVFHDFqKe5DlfNWpofCwvb9n5XoHzemN~WMnToOmrk4QNXnKl5AKnm65a5bJtGliz92K7ILI0uzYce74XycSDETsrTWWqe9p9~sVPUpCH4qjFK72dOFFoVEmMuPhuKzqSCV0PRpMLonbYwssmAZg8tD9Rqe2m7TsNrvpdBBUFAOcNHiiXG-FCfhXG98sNVeeVeAgjLu94WkZGuN1awbyyBIyxuaCYToK3Q8EHC0vmY5dWT-ypHrjQsKONKF4e3-P2~fWhfG~24De5yg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA"
+                }
+            ],
+            "width": 854
+        }
+    }
+}

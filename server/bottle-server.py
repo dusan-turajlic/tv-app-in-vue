@@ -4,7 +4,7 @@ import urllib.parse
 from sqlite3 import Error
 
 import requests
-from bottle import get, post, run, response, request
+from bottle import post, get, run, response, request
 from bs4 import BeautifulSoup
 
 API_ENTRY_POINT = '/api'
@@ -33,9 +33,13 @@ def connect_to_database_and_execute(databaseCommand):
 
     return value
 
+MOVIE_LIST = connect_to_database_and_execute('select * from mediaData where type = "movie"')
+SERIES_LIST = connect_to_database_and_execute('select * from mediaData where type = "tv-series"')
+CATEGORY_LIST = connect_to_database_and_execute( 'select * from categories' )
+
 def get_category_for_media( mediaId ):
     catagorie_to_media_map = connect_to_database_and_execute( 'select * from mediaToCategoryMap where mediaId = ' + str( mediaId ) )
-    category = connect_to_database_and_execute( 'select * from categories' )
+    category = CATEGORY_LIST
 
     mediaCatagories = []
     for cat in category:
@@ -45,45 +49,88 @@ def get_category_for_media( mediaId ):
 
     return mediaCatagories
 
+# @TODO implament proper pagination
+def paginate_media_list(media_list, size):
+    return [media_list[i:i + size] for i in range(0, len(media_list), size)]
+
+
+def create_response_json( media_list, page_size, start_index ):
+    response_dict = {}
+    media_dict = media_list
+    for media in media_dict:
+        genre = get_category_for_media( media['id'] )
+        media['genre'] = genre
+
+    paginated_list = paginate_media_list( media_dict, page_size )
+
+    response_dict['mediaData'] = paginated_list[start_index]
+    response_dict['endIndex'] = len(paginated_list) - 1
+    response_dict['pageSize'] = page_size
+    response_dict['startIndex'] = start_index
+
+    return json.dumps( response_dict )
+
 
 @get(API_ENTRY_POINT + '/movies')
 def movies():
+    query = request.query.decode()
+    page_size = int(query.get('pageSize', 15))
+    start_index = int(query.get('startIndex', 0))
+    response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
-    movies = connect_to_database_and_execute('select * from mediaData where type = "movie"')
 
-    for movie in movies:
-        genre = get_category_for_media( movie['id'] )
-        movie['genre'] = genre
-
-    return json.dumps(movies)
+    return create_response_json( MOVIE_LIST, page_size, start_index )
 
 
 @get(API_ENTRY_POINT + '/series')
 def series():
+    query = request.query.decode()
+    page_size = int(query.get('pageSize', 15))
+    start_index = int(query.get('startIndex', 0))
+    response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
-    series = connect_to_database_and_execute('select * from mediaData where type = "tv-series"')
 
-    for serie in series:
-        genre = get_category_for_media( serie['id'] )
-        serie['genre'] = genre
-
-    return json.dumps(series)
+    return create_response_json( SERIES_LIST, page_size, start_index )
 
 
-@post(API_ENTRY_POINT + '/trailer')
-def trailer():
+@get(API_ENTRY_POINT + '/<media>/trailer/<id>')
+def trailer( media, id ):
+    response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
-    request_body = urllib.parse.unquote(request.body.getvalue().decode('utf-8'))
+    mediaData = []
+    if media == 'movie':
+        mediaData = MOVIE_LIST
+    elif media == 'tv-series':
+        mediaData = SERIES_LIST
+
+    selectedMedia = list( filter( lambda m: m.get( 'id' ) == int( id ), mediaData ) )[0]
+
+    trailer_html_page = requests.get( selectedMedia.get( 'trailer' ) )
+    trailer_soup = BeautifulSoup(trailer_html_page.text, 'html.parser')
+    trailer_script = trailer_soup.find('script', { 'class', 'imdb-player-data' })
+
+    if trailer_script:
+        trailer_json = trailer_script.getText().strip()
+        return json.dumps({ 'trailer': json.loads(trailer_json).get( 'videoPlayerObject', {} ).get( 'video', {} ).get( 'videoInfoList', '' ) })
+
+
+@post(API_ENTRY_POINT + '/slate')
+def get_slate():
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.content_type = 'application/json'
+    request_body = json.loads( urllib.parse.unquote(request.body.getvalue().decode('utf-8')) )
 
     # @TODO: Figure out a better way to parse params from request body.
-    url = request_body.replace( 'trailerUrl=', '' )
+    url = request_body.get( 'trailerUrl', '' )
 
     trailer_html_page = requests.get(url)
     trailer_soup = BeautifulSoup(trailer_html_page.text, 'html.parser')
-    trailer_json = trailer_soup.find('script', { 'class', 'imdb-player-data' }).getText().strip()
+    trailer_script = trailer_soup.find('script', { 'class', 'imdb-player-data' })
+    if trailer_script:
+        trailer_json = trailer_script.getText().strip()
+        return json.dumps({ 'slateUrl': json.loads(trailer_json).get( 'videoPlayerObject', {} ).get( 'video', {} ).get( 'slate', '' ) })
+    else:
+        return json.dumps({ 'slateUrl': '' })
 
-    return json.dumps(json.loads(trailer_json)[ 'videoPlayerObject' ][ 'video' ][ 'videoInfoList' ])
 
-
-
-run(host='localhost', port=8080)
+run(host='192.168.1.170', port=8080)
