@@ -19,21 +19,25 @@
 </script>
 
 <style lang="scss">
+html body {
+  background-color: #282828;
+  color: #2c3e50;
+  width: auto;
+  height: auto;
+}
+
 body, #app {
   font-family: 'Roboto', Helvetica, Arial, sans-serif;
   text-align: center;
   background-color: #282828;
   color: #2c3e50;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  bottom: 0;
-  overflow: hidden;
-  width: 1920px;
+  width: auto;
   height: 1080px;
   padding: 0;
-  margin: auto;
 }
 
 .page-logo {

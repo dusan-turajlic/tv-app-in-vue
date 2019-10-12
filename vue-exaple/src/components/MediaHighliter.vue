@@ -12,8 +12,8 @@
                 let activeItem = document.querySelector( '.active img' );
                 let highliter = get( this.$refs, 'highliter.style', {} );
 
-                highliter.width = ( get( activeItem, 'clientWidth' ) || 216 ) + 'px';
-                highliter.height = ( get( activeItem, 'clientHeight' ) || 320 )+ 'px';
+                highliter.width = ( get( activeItem, 'offsetWidth' ) || 216 ) + 'px';
+                highliter.height = ( get( activeItem, 'offsetHeight' ) || 320 )+ 'px';
             } )
         },
         mounted() {
@@ -27,8 +27,8 @@
 <style scoped>
    div {
      position: absolute;
-     left: 3.56%;
-     top: 40%;
+     left: 4.2542em;
+     top: 27em;
      border: 0.5em solid white;
      border-radius: 0.2em;
      padding-bottom: 2.6em;

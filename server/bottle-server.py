@@ -1,9 +1,9 @@
 import json
 import sqlite3
-import urllib.parse
 from sqlite3 import Error
 
 import requests
+import urllib.parse
 from bottle import post, get, run, response, request
 from bs4 import BeautifulSoup
 
@@ -54,7 +54,7 @@ def paginate_media_list(media_list, size):
     return [media_list[i:i + size] for i in range(0, len(media_list), size)]
 
 
-def create_response_json( media_list, page_size, start_index ):
+def create_response_json( media_type, media_title, media_list, page_size, index ):
     response_dict = {}
     media_dict = media_list
     for media in media_dict:
@@ -63,10 +63,14 @@ def create_response_json( media_list, page_size, start_index ):
 
     paginated_list = paginate_media_list( media_dict, page_size )
 
-    response_dict['mediaData'] = paginated_list[start_index]
-    response_dict['endIndex'] = len(paginated_list) - 1
-    response_dict['pageSize'] = page_size
-    response_dict['startIndex'] = start_index
+
+    response_dict['type'] = media_type
+    response_dict['title'] = media_title
+    response_dict['mediaData'] = paginated_list[index]
+    next_page = ''
+    if index < len( paginated_list ) -1:
+        next_page = request.path + '?pageSize=' + str(page_size) + '&index=' + str(index + 1)
+    response_dict['nextPage'] = next_page
 
     return json.dumps( response_dict )
 
@@ -75,22 +79,22 @@ def create_response_json( media_list, page_size, start_index ):
 def movies():
     query = request.query.decode()
     page_size = int(query.get('pageSize', 15))
-    start_index = int(query.get('startIndex', 0))
+    index = int( query.get('index', 0) )
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
 
-    return create_response_json( MOVIE_LIST, page_size, start_index )
+    return create_response_json( 'movies', 'Movies', MOVIE_LIST, page_size, index )
 
 
 @get(API_ENTRY_POINT + '/series')
 def series():
     query = request.query.decode()
     page_size = int(query.get('pageSize', 15))
-    start_index = int(query.get('startIndex', 0))
+    index = int(query.get('index', 0))
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
 
-    return create_response_json( SERIES_LIST, page_size, start_index )
+    return create_response_json( 'tv-series', 'Series', SERIES_LIST, page_size, index )
 
 
 @get(API_ENTRY_POINT + '/<media>/trailer/<id>')
@@ -133,4 +137,4 @@ def get_slate():
         return json.dumps({ 'slateUrl': '' })
 
 
-run(host='192.168.1.170', port=8080)
+run(host='0.0.0.0', port=8080)

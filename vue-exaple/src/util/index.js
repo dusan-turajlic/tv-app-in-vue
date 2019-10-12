@@ -1,6 +1,6 @@
 import { memoize } from 'lodash'
 // @TOOD: Remove this hard coded link for API
-const URL = 'http://192.168.1.170:8080';
+const URL = `http://${window.location.hostname}:8080`;
 
 export default class Util {
     static async xhr( {method = 'GET', route, headers, body} ) {

@@ -1,7 +1,7 @@
 <template>
   <div class="outer">
     <div class="carousel-title">{{title}}</div>
-    <div ref="wrapper" class="wrapper">
+    <div ref="wrapper" class="wrapper" :style="'left:' + moveLeft + 'px'">
       <template v-for="child in children">
         <MediaCard :key="child.id" ref="mediaCard" v-if="child" :media="child" :src="child.image.replace( '_UY1000', '_UY320' )" :name="child.title" :link="`/play/${child.type}/${child.id}`"></MediaCard>
       </template>
@@ -11,6 +11,7 @@
 
 <script>
     import { get } from 'lodash'
+    import { mapState } from 'vuex';
     import MediaCard from '@/components/MediaCard.vue'
 
     export default {
@@ -19,77 +20,114 @@
             MediaCard
         },
         props: {
+            id: String,
             type: String,
             title: String,
             isActive: Boolean,
             direction: String,
             children: Array
         },
-        data() {
-            return {
-                moveLeft: 0,
-                activeItem: 0
-            }
-        },
         mounted() {
-          document.addEventListener( 'keydown', event => {
-              if ( this.isActive ) {
-                  let wrapperStyle = get( this.$refs, 'wrapper.style', {} );
-                  wrapperStyle.left = this.moveWrapper( event ) + 'px';
-              }
-          } );
+            let data = this.$store.getters.getCarouselData( this.id );
+            if ( data && !Object.keys( data ).length ) {
+                this.$store.commit( 'SET_ACTIVE_CAROUSEL_DATA', {
+                    id: this.id,
+                    data: {
+                        moveLeft: 0,
+                        activeIndex: 0
+                    }
+                } );
+            }
 
-          this.activateCard();
-        },
-        updated() {
+            document.addEventListener( 'keydown', this.onKeyDown );
             this.activateCard();
         },
+        updated() {
+            this.activateCard()
+        },
+        beforeDestroy() {
+          document.removeEventListener( 'keydown', this.onKeyDown );
+        },
+        computed: mapState( {
+            moveLeft( state ) {
+                return get( state, `carousel[${this.id}].moveLeft`, 0 );
+            }
+        } ),
         methods: {
-            moveWrapper( event ) {
+            onKeyDown() {
+                if ( this.isActive ) {
+                    let wrapperStyle = get( this.$refs, 'wrapper.style', {} );
+                    wrapperStyle.left = this.moveWrapper( event ) + 'px';
+                }
+            },
+            moveWrapper( { keyCode } ) {
+                let { activeIndex, moveLeft } = this.$store.getters.getCarouselData( this.id );
                 let containerWidth = get( this.$refs, 'wrapper.offsetWidth', 0 );
                 this.deactivateCard();
 
-                switch ( event.keyCode ) {
-                    case 39:
-                        let previousCardWidth = get( this.$refs, `mediaCard[${ this.activeItem }].$refs.card.offsetWidth`, 0 );
-                        let forward = this.moveLeft - previousCardWidth;
-                        if ( forward > (containerWidth * -1) ) {
-                            ++this.activeItem;
-                            this.moveLeft = forward;
-                        }
-                        break;
-                    case 37:
-                        let nextCardWidth = get( this.$refs, `mediaCard[${ this.activeItem - 1 }].$refs.card.offsetWidth`, 0 );
-                        let backward = this.moveLeft + nextCardWidth;
-                        if ( backward <= 0 ) {
-                            if ( this.activeItem > 0 ) {
-                                --this.activeItem;
+                if ( keyCode ) {
+                    switch ( keyCode ) {
+                        case 39:
+                            let previousCardWidth = get( this.$refs, `mediaCard[${ activeIndex }].$refs.card.offsetWidth`, 0 );
+                            let forward = moveLeft - previousCardWidth;
+                            let hasNextItem = get( this.$refs, `mediaCard[${ activeIndex + 1 }]`, false );
+                            if ( forward > (containerWidth * -1) && hasNextItem ) {
+                                ++activeIndex;
+                                moveLeft = forward;
+                                this.$store.commit( 'SET_ACTIVE_CAROUSEL_DATA', {
+                                    id: this.id,
+                                    data: {
+                                        activeIndex,
+                                        moveLeft
+                                    }
+                                } );
                             }
-                            this.moveLeft = backward;
-                        }
-                        break;
-                    case 13:
-                        let card = get( this.$refs, `mediaCard[${ this.activeItem }].$refs.card`, 0 );
-                        card.click();
-                        break;
+                            break;
+                        case 37:
+                            let nextCardWidth = get( this.$refs, `mediaCard[${ activeIndex - 1 }].$refs.card.offsetWidth`, 0 );
+                            let backward = moveLeft + nextCardWidth;
+                            if ( backward <= 0 ) {
+                                if ( activeIndex > 0 ) {
+                                    --activeIndex;
+                                }
+                                moveLeft = backward;
+                                this.$store.commit( 'SET_ACTIVE_CAROUSEL_DATA', {
+                                    id: this.id,
+                                    data: {
+                                        activeIndex,
+                                        moveLeft
+                                    }
+                                } );
+                            }
+                            break;
+                        case 13:
+                            let card = get( this.$refs, `mediaCard[${ activeIndex }].$refs.card`, {
+                                click: () => {
+                                }
+                            } );
+                            card.click();
+                            break;
 
+                    }
                 }
 
-                if ( ( ( this.activeItem - ( this.children.length - 1 ) ) * -1 ) < 7 ) {
+                if ( ( ( activeIndex - ( this.children.length - 1 ) ) * -1 ) < 7 ) {
                   this.emitPaginate();
                 }
 
                 this.activateCard();
 
-                return this.moveLeft;
+                return moveLeft;
             },
             deactivateCard() {
-                let lastCard = get( this.$refs, `mediaCard[${ this.activeItem }]`, {} );
+                let { activeIndex } = this.$store.getters.getCarouselData( this.id );
+                let lastCard = get( this.$refs, `mediaCard[${ activeIndex }]`, {} );
                 lastCard.active = false;
             },
             activateCard() {
                 if ( this.isActive ) {
-                    let card = get( this.$refs, 'mediaCard[' + this.activeItem + ']', {} );
+                    let { activeIndex } = this.$store.getters.getCarouselData( this.id );
+                    let card = get( this.$refs, 'mediaCard[' + activeIndex + ']', {} );
                     card.active = true;
                 }
             },

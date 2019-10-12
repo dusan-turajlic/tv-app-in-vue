@@ -27,26 +27,27 @@
             }
         },
         beforeCreate() {
-            document.addEventListener( 'activeItemChanged', () => {
-                if ( delay ) {
-                    clearInterval( delay );
+            document.addEventListener( 'activeItemChanged', ( { mediaItem } ) => {
+                if ( mediaItem ) {
+                    if ( delay ) {
+                        clearInterval( delay );
+                    }
+
+                    delay = setTimeout( () => {
+                        let activeItem = document.querySelector( '.active' );
+                        this.title = mediaItem.title;
+                        this.description = mediaItem.description;
+                        if ( mediaItem.genre.length ) {
+                            this.genre = mediaItem.genre.join( ', ' );
+                        }
+
+                        if ( mediaItem.trailer ) {
+                            util.xhr( { method: 'POST', route: '/api/slate', body: { trailerUrl: mediaItem.trailer } } ).then( ( response ) => {
+                                this.$refs.backdrop.src = response.slateUrl;
+                            } );
+                        }
+                    }, 750 );
                 }
-
-                delay = setTimeout( () => {
-                    let activeItem = document.querySelector( '.active' );
-                    let mediaItem = get( activeItem, '__vue__._props.media', {} );
-                    this.title = mediaItem.title;
-                    this.description = mediaItem.description;
-                    if ( mediaItem.genre.length ) {
-                        this.genre = mediaItem.genre.join( ', ' );
-                    }
-
-                    if ( mediaItem.trailer ) {
-                        util.xhr( { method: 'POST', route: '/api/slate', body: { trailerUrl: mediaItem.trailer } } ).then( ( response ) => {
-                            this.$refs.backdrop.src = response.slateUrl;
-                        } );
-                    }
-                }, 500 );
             } )
         }
     }

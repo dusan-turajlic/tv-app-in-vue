@@ -2,9 +2,9 @@
   <div class="home">
     <MediaHighliter></MediaHighliter>
     <div class="carousel-wrapper">
-      <div class="innet-wrapper" ref="carouselWrapper">
+      <div class="innet-wrapper" ref="carouselWrapper" :style="`top: ${moveTop}px;`">
           <template v-for="(media, index) in mediaList">
-              <Carousel :isActive="activeCarousel === index" ref="carousel" :children="media.children" :type="media.type" :title="media.title"></Carousel>
+              <Carousel :isActive="activeIndex === index" ref="carousel" :id="media.type + '-' + index" :children="media.mediaData" :type="media.type" :title="media.title"></Carousel>
           </template>
       </div>
     </div>
@@ -13,11 +13,9 @@
 
 <script>
     import { get, find } from 'lodash'
-    import util from '@/util'
+    import { mapState } from 'vuex';
     import MediaHighliter from "@/components/MediaHighliter";
     import Carousel from '@/components/Carousel'
-
-    const PAGE_SIZE = 15;
 
     export default {
         name: 'home',
@@ -25,50 +23,59 @@
             Carousel,
             MediaHighliter
         },
-        data() {
-            return {
-                activeCarousel: 0,
-                moviesPageIndex: -1,
-                seriesPageIndex: -1,
-                movieEndIndex: 0,
-                serieEndIndex: 0,
-                mediaList: []
+        created() {
+            this.$store.dispatch( 'getMedia', 'movies' );
+            this.$store.dispatch( 'getMedia', 'tv-series' );
+
+            document.addEventListener( 'keydown', this.onKeyDown );
+            document.addEventListener( 'pagination', this.onPaginate );
+
+            let hasData = this.$store.getters.getCarouselContainerData();
+            if ( hasData && !Object.keys( hasData ).length ) {
+                this.$store.commit( 'SET_ACTIVE_CAROUSEL_CONTAINER', {
+                    activeIndex: 0,
+                    moveTop: 0
+                } );
             }
         },
-        created() {
-            this.getMedia( 'movie' );
-            this.getMedia( 'tv-series' );
-
-            document.addEventListener( 'pagination', event => {
-                this.getMedia( event.mediaType );
-            } );
+        beforeDestroy() {
+            document.removeEventListener( 'keydown', this.onKeyDown );
+            document.removeEventListener( 'pagination', this.onPaginate );
         },
-        mounted() {
-            document.addEventListener( 'keydown', event => {
-                let container = window.test = get( this.$refs, 'carouselWrapper', {} );
+        computed: mapState( {
+            mediaList: state => state.mediaList,
+            moveTop: state => get( state, 'carouselContainer.moveTop', 0 ),
+            activeIndex: state => get( state, 'carouselContainer.activeIndex', 0 )
+        } ),
+        methods: {
+            onPaginate( { mediaType } ) {
+                this.$store.dispatch( 'getMedia', mediaType )
+            },
+            onKeyDown( event ) {
+                let { activeIndex, moveTop } = this.$store.getters.getCarouselContainerData();
+                let container = get( this.$refs, 'carouselWrapper', {} );
                 let carousel = get( this.$refs, `carousel`, [] );
                 if ( event.keyCode === 40 ) {
-                    if ( this.activeCarousel >= 0 && this.activeCarousel < carousel.length -1 ) {
-                        let activeItem = get( this.$refs, `carousel[${this.activeCarousel}]`, {} )
-                        container.style.top = activeItem.$el.offsetHeight * -1 + 'px';
+                    if ( activeIndex >= 0 && activeIndex < carousel.length -1 ) {
+                        let activeItem = get( this.$refs, `carousel[${activeIndex}]`, {} )
+                        moveTop = activeItem.$el.offsetHeight * -1;
+                        container.style.top = moveTop + 'px';
                         activeItem.deactivateCard();
-                        ++this.activeCarousel;
+                        ++activeIndex;
                     }
                 }
                 else if ( event.keyCode === 38 ) {
-                    if ( this.activeCarousel > 0 ){
-                        let activeItem = get( this.$refs, `carousel[${this.activeCarousel}]`, {} )
-                        container.style.top = 0 + 'px';
+                    if ( activeIndex > 0 ){
+                        let activeItem = get( this.$refs, `carousel[${activeIndex}]`, {} )
+                        moveTop = 0;
+                        container.style.top = moveTop + 'px';
                         activeItem.deactivateCard();
-                        --this.activeCarousel;
+                        --activeIndex;
                     }
                 }
-            } );
-        },
-        updated() {
-            console.log( this.activeCarousel );
-        },
-        methods: {
+
+                this.$store.commit( 'SET_ACTIVE_CAROUSEL_CONTAINER', { activeIndex, moveTop } );
+            },
             appendToMovies( movies ) {
                 if ( movies && movies.length ) {
                     this.addToMediaList( {
@@ -134,11 +141,10 @@
 
   .carousel-wrapper {
     position: absolute;
-    top: 40%;
-    left: 3.65%;
+    top: 27em;
+    padding-left: 3.65%;
     z-index: 2;
     overflow-y: hidden;
-    overflow-x: visible;
   }
 
   .innet-wrapper {

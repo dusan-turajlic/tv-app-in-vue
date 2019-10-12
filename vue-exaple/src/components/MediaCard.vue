@@ -1,8 +1,10 @@
 <template>
-  <a ref="card" :class="{ active: active }" :href="link">
-    <img ref="image" :alt="name" :src="src">
-    <span>{{name}}</span>
-  </a>
+  <router-link ref="link" :to="link">
+    <div ref="card" :class="{ active: active }">
+        <img ref="image" :alt="name" :src="src">
+        <span>{{name}}</span>
+    </div>
+  </router-link>
 </template>
 
 <script>
@@ -27,6 +29,9 @@
         methods: {
             createAndDispatchItemChangedEvent() {
                 let event = new Event('activeItemChanged');
+                if ( this.active ) {
+                    event.mediaItem = this.media;
+                }
                 document.dispatchEvent( event );
             }
         }
@@ -34,7 +39,7 @@
 </script>
 
 <style scoped>
-  a {
+  div {
     color: white;
     text-decoration: none;
     position: relative;
