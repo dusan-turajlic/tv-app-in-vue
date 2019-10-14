@@ -8,24 +8,30 @@ Vue.config.productionTip = false
 new Vue({
   router,
   store,
-  render( h ){
-    var DESIGNED_WIDTH = 1080;
-    var style = document.createElement( 'style' );
+  render( h ) {
+      let query = window.location.search;
+      if ( !query || ~query.indexOf( 'pc' ) ) {
+          /* eslint-disable */
+          const DESIGNED_WIDTH = 1920;
+          let style = document.createElement( 'style' );
 
-    function getCurrentResoScale() {
-      var documentWidth = document.body.offsetHeight;
+          function getCurrentResoScale() {
+              let documentWidth = document.body.offsetWidth;
 
-      return ( documentWidth / DESIGNED_WIDTH ) * 100;
-    };
+              return ( documentWidth / DESIGNED_WIDTH ) * 100;
+          }
 
-    function scaleBody() {
-      var scale = getCurrentResoScale();
-      style.innerHTML = ' body {' + 'zoom: ' + scale + '%; -moz-transform: scale( ' + scale / 100 + ' ); -moz-transform-origin: 0 0; }'
-      document.head.appendChild( style );
-    }
+          function scaleBody() {
+              var scale = getCurrentResoScale();
+              style.innerHTML = ' body {' + 'zoom: ' + scale + '%; -moz-transform: scale( ' + scale / 100 + ' ); -moz-transform-origin: 0 0; }'
+              document.head.appendChild( style );
+          }
 
-    scaleBody();
+          scaleBody();
+          window.addEventListener( 'resize', scaleBody );
+          /* eslint-enable */
+      }
 
-    return h(App)
+      return h(App)
   }
 }).$mount('#app')

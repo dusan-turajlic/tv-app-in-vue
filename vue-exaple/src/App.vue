@@ -1,22 +1,8 @@
 <template>
   <div id="app">
-    <Details></Details>
     <router-view/>
-    <img class="page-logo" alt="Vue logo" src="./assets/logo.png">
   </div>
 </template>
-
-<script>
-  import Details from "@/components/Details";
-
-  export default {
-      name: 'app',
-      components: {
-          Details
-      }
-  }
-
-</script>
 
 <style lang="scss">
 html body {
@@ -36,7 +22,7 @@ body, #app {
   right: 0;
   top: 0;
   width: auto;
-  height: 1080px;
+  height: 100%;
   padding: 0;
 }
 

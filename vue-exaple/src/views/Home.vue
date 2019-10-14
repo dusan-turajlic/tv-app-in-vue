@@ -1,10 +1,12 @@
 <template>
   <div class="home">
+    <Details></Details>
+    <img class="page-logo" alt="Vue logo" src="../assets/logo.png">
     <MediaHighliter></MediaHighliter>
     <div class="carousel-wrapper">
       <div class="innet-wrapper" ref="carouselWrapper" :style="`top: ${moveTop}px;`">
           <template v-for="(media, index) in mediaList">
-              <Carousel :isActive="activeIndex === index" ref="carousel" :id="media.type + '-' + index" :children="media.mediaData" :type="media.type" :title="media.title"></Carousel>
+              <Carousel :key="index" :isActive="activeIndex === index" ref="carousel" :id="media.type + '-' + index" :children="media.mediaData" :type="media.type" :title="media.title"></Carousel>
           </template>
       </div>
     </div>
@@ -12,8 +14,9 @@
 </template>
 
 <script>
-    import { get, find } from 'lodash'
+    import { get } from 'lodash'
     import { mapState } from 'vuex';
+    import Details from "@/components/Details";
     import MediaHighliter from "@/components/MediaHighliter";
     import Carousel from '@/components/Carousel'
 
@@ -21,7 +24,8 @@
         name: 'home',
         components: {
             Carousel,
-            MediaHighliter
+            MediaHighliter,
+            Details
         },
         created() {
             this.$store.dispatch( 'getMedia', 'movies' );
@@ -75,53 +79,6 @@
                 }
 
                 this.$store.commit( 'SET_ACTIVE_CAROUSEL_CONTAINER', { activeIndex, moveTop } );
-            },
-            appendToMovies( movies ) {
-                if ( movies && movies.length ) {
-                    this.addToMediaList( {
-                        type: 'movie',
-                        title: 'Movies',
-                        children: movies
-                    } );
-                }
-            },
-            appendToSeries( series ) {
-                if ( series && series.length ) {
-                    this.addToMediaList( {
-                        type: 'tv-series',
-                        title: 'Series',
-                        children: series
-                    } );
-                }
-            },
-            addToMediaList( mediaOptions ) {
-                let media = find( this.mediaList, { type: mediaOptions.type } );
-                if ( media ) {
-                    mediaOptions.children.forEach( item => media.children.push( item ) );
-                }
-                else {
-                    this.mediaList.push( mediaOptions )
-                }
-            },
-            getMedia( type ) {
-                switch ( type ) {
-                    case 'movie':
-                        if ( this.movieEndIndex > this.moviesPageIndex ) {
-                            util.xhr( { route: `/api/movies?pageSize=${ PAGE_SIZE }&startIndex=${ ++this.moviesPageIndex }` } ).then( ( {endIndex, mediaData} ) => {
-                                this.movieEndIndex = endIndex;
-                                this.appendToMovies( mediaData )
-                            } );
-                        }
-                        break;
-                    case 'tv-series':
-                        if ( this.serieEndIndex > this.seriesPageIndex ) {
-                            util.xhr( { route: `/api/series?pageSize=${ PAGE_SIZE }&startIndex=${ ++this.seriesPageIndex }` } ).then( ( {endIndex, mediaData} ) => {
-                                this.serieEndIndex = endIndex;
-                                this.appendToSeries( mediaData );
-                            } );
-                        }
-                      break;
-                }
             }
         }
     }
