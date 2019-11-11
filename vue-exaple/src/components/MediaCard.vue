@@ -8,8 +8,6 @@
 </template>
 
 <script>
-    import 'hooper/dist/hooper.css';
-
     export default {
         name: "MediaCard",
         props: {

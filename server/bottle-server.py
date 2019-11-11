@@ -19,7 +19,7 @@ def connect_to_database_and_execute(databaseCommand):
     connection = None
     value = None
     try:
-        connection = sqlite3.connect('database/mediaDatabase.db')
+        connection = sqlite3.connect('./database/mediaDatabase.db')
         connection.row_factory = dict_factory
         cursor = connection.cursor()
 
@@ -137,4 +137,4 @@ def get_slate():
         return json.dumps({ 'slateUrl': '' })
 
 
-run(host='0.0.0.0', port=8079)
+run(host='0.0.0.0', port=8080)
