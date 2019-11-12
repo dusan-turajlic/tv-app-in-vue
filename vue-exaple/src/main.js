@@ -31,6 +31,9 @@ new Vue({
           window.addEventListener( 'resize', scaleBody );
           /* eslint-enable */
       }
+      else if ( !query || ~query.indexOf( 'samsungtizen' ) ) {
+          import( './device/samsungtizen' );
+      }
 
       return h(App)
   }
