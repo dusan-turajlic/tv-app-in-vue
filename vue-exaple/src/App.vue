@@ -10,6 +10,8 @@ html body {
   color: #2c3e50;
   width: auto;
   height: auto;
+  max-width: 1920px;
+  max-height: 1080px
 }
 
 body, #app {
