@@ -8,10 +8,10 @@
 html body {
   background-color: #282828;
   color: #2c3e50;
-  width: auto;
-  height: auto;
-  max-width: 1920px;
-  max-height: 1080px
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+  padding: 0;
 }
 
 body, #app {

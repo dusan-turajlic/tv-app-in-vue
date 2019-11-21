@@ -11,6 +11,7 @@ let inProgress = false;
 
 export default new Vuex.Store({
     state: {
+        isLoading: false,
         mediaUrl: {
             movies: `/api/movies?pageSize=${PAGE_SIZE}`,
             series: `/api/series?pageSize=${PAGE_SIZE}`
@@ -30,14 +31,11 @@ export default new Vuex.Store({
                     break;
             }
         },
+        SET_IS_LOADING( state, value ) {
+            state.isLoading = value;
+        },
         SET_MEDIA( state, data ) {
-            let mediaInState = find( state.mediaList, ( { type } ) => type == data.type );
-            if ( !mediaInState ) {
-                state.mediaList.push( data );
-            }
-            else {
-                data.mediaData.forEach( data => mediaInState.mediaData.push( data ) );
-            }
+            state.mediaList = data;
         },
         SET_ACTIVE_CAROUSEL_DATA( state, { id, data } ) {
             state.carousel[id] = data;
@@ -47,24 +45,33 @@ export default new Vuex.Store({
         }
     },
     actions: {
-        getMedia( { commit, state }, type ) {
-            let url = '';
-            switch ( type ) {
-                case 'movies':
-                    url = state.mediaUrl.movies;
-                    break;
-                case 'tv-series':
-                    url = state.mediaUrl.series;
-                    break;
-            }
+        cacheImages( { commit } ) {
+            commit( 'SET_IS_LOADING', true );
 
-            if ( url ) {
-                util.xhr( { route: url } ).then( ( { type, title, mediaData, nextPage } ) => {
-                    commit( 'SET_MEDIA_URL', { type, nextPage } );
-                    commit( 'SET_MEDIA', { type, title, mediaData } );
-                    inProgress = false;
+            util.xhr( { route: '/api/images' } ).then( imageList => {
+                let pomises = [];
+                imageList.forEach( ( imgSrc ) => {
+                    pomises.push(
+                        new Promise(
+                            resolve => {
+                                let img = new Image();
+                                img.src = imgSrc.replace( '_UY1000', '_UY250' );
+                                img.onload = resolve;
+                                img.onerror = resolve;
+                            }
+                        )
+                    );
                 } );
-            }
+
+                Promise.all( pomises ).then( () => {
+                    commit( 'SET_IS_LOADING', false );
+                } );
+            } );
+        },
+        getMedia( { commit, state } ) {
+            util.xhr( { route: '/api/media' } ).then( ( mediaList ) => {
+                commit( 'SET_MEDIA', mediaList );
+            } );
         }
     },
     getters: {

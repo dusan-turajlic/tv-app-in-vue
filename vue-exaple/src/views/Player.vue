@@ -87,6 +87,7 @@
                     case 40:
                         this.hideControls();
                         break;
+                    case 10009:
                     case 8:
                         this.exitPlayer();
                         break;

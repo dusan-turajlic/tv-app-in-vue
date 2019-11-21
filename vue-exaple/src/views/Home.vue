@@ -1,15 +1,20 @@
 <template>
   <div class="home">
-    <Details></Details>
-    <img class="page-logo" alt="Vue logo" src="../assets/logo.png">
-    <MediaHighliter></MediaHighliter>
-    <div class="carousel-wrapper">
-      <div class="innet-wrapper" ref="carouselWrapper" :style="`top: ${moveTop}px;`">
+    <template v-if="!isLoading">
+      <Details></Details>
+      <img class="page-logo" alt="Vue logo" src="../assets/logo.png">
+      <MediaHighliter></MediaHighliter>
+      <div class="carousel-wrapper">
+        <div class="innet-wrapper" ref="carouselWrapper" :style="`top: ${moveTop}px;`">
           <template v-for="(media, index) in mediaList">
-              <Carousel :key="index" :isActive="activeIndex === index" ref="carousel" :id="media.type + '-' + index" :children="media.mediaData" :type="media.type" :title="media.title"></Carousel>
+            <Carousel :key="index" :isActive="activeIndex === index" ref="carousel" :id="media.type + '-' + index" :children="media.mediaData" :type="media.type" :title="media.title"></Carousel>
           </template>
+        </div>
       </div>
-    </div>
+    </template>
+    <template v-else>
+      <SplashScreen></SplashScreen>
+    </template>
   </div>
 </template>
 
@@ -19,17 +24,19 @@
     import Details from "@/components/Details";
     import MediaHighliter from "@/components/MediaHighliter";
     import Carousel from '@/components/Carousel'
+    import SplashScreen from '@/components/SplashScreen'
 
     export default {
         name: 'home',
         components: {
             Carousel,
+            SplashScreen,
             MediaHighliter,
             Details
         },
         created() {
-            this.$store.dispatch( 'getMedia', 'movies' );
-            this.$store.dispatch( 'getMedia', 'tv-series' );
+            this.$store.dispatch( 'cacheImages' );
+            this.$store.dispatch( 'getMedia' );
 
             document.addEventListener( 'keydown', this.onKeyDown );
             document.addEventListener( 'pagination', this.onPaginate );
@@ -49,7 +56,8 @@
         computed: mapState( {
             mediaList: state => state.mediaList,
             moveTop: state => get( state, 'carouselContainer.moveTop', 0 ),
-            activeIndex: state => get( state, 'carouselContainer.activeIndex', 0 )
+            activeIndex: state => get( state, 'carouselContainer.activeIndex', 0 ),
+            isLoading: state => state.isLoading
         } ),
         methods: {
             onPaginate( { mediaType } ) {
