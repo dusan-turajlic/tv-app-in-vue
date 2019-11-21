@@ -54,7 +54,7 @@ def paginate_media_list(media_list, size):
     return [media_list[i:i + size] for i in range(0, len(media_list), size)]
 
 
-def create_response_json( media_type, media_title, media_list, page_size, index ):
+def create_media_response( media_type, media_title, media_list, page_size, index ):
     response_dict = {}
     media_dict = media_list
     for media in media_dict:
@@ -72,8 +72,25 @@ def create_response_json( media_type, media_title, media_list, page_size, index 
         next_page = request.path + '?pageSize=' + str(page_size) + '&index=' + str(index + 1)
     response_dict['nextPage'] = next_page
 
-    return json.dumps( response_dict )
+    return response_dict
 
+@get(API_ENTRY_POINT + '/images')
+def images():
+    response.content_type = 'application/json'
+    images = map( lambda img: img['image'], connect_to_database_and_execute('select image from mediaData') )
+    return json.dumps( list(images) );
+
+@get(API_ENTRY_POINT + '/media')
+def media():
+    response.content_type = 'application/json'
+    media = []
+    movies = create_media_response( 'movies', 'Movies', MOVIE_LIST, len( MOVIE_LIST ), 0 )
+    seris = create_media_response( 'tv-series', 'Series', SERIES_LIST, len( SERIES_LIST ), 0 )
+
+    media.append( movies )
+    media.append( seris )
+
+    return json.dumps( media )
 
 @get(API_ENTRY_POINT + '/movies')
 def movies():
@@ -83,7 +100,7 @@ def movies():
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
 
-    return create_response_json( 'movies', 'Movies', MOVIE_LIST, page_size, index )
+    return json.dumps( create_media_response( 'movies', 'Movies', MOVIE_LIST, page_size, index ) )
 
 
 @get(API_ENTRY_POINT + '/series')
@@ -94,7 +111,7 @@ def series():
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.content_type = 'application/json'
 
-    return create_response_json( 'tv-series', 'Series', SERIES_LIST, page_size, index )
+    return json.dumps( create_media_response( 'tv-series', 'Series', SERIES_LIST, page_size, index ) )
 
 
 @get(API_ENTRY_POINT + '/<media>/trailer/<id>')

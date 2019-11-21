@@ -80,9 +80,9 @@
   .title {
     position: relative;
     white-space: nowrap;
-    width: 66%;
+    width: 57%;
     margin-bottom: 0.3em;
-    font-size: 6em;
+    font-size: 5em;
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
     overflow: hidden;
