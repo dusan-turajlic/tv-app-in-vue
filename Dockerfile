@@ -94,15 +94,11 @@ RUN set -x \
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
-EXPOSE 80
 # Removed the section that breaks pip installations
 # && apt-get remove --purge --auto-remove -y apt-transport-https ca-certificates
 # added --no-tty to apt-key adv as without it it breaks (even though it works in official Nginx)
 # apt-key adv --no-tty
 # Standard set up Nginx finished
-
-# Expose 443, in case of LTS / HTTPS
-EXPOSE 443
 
 # By default, allow unlimited file sizes, modify it to limit the file sizes
 # To have a maximum of 1 MB (Nginx's default) change the line to:

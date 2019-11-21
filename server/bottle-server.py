@@ -137,4 +137,5 @@ def get_slate():
         return json.dumps({ 'slateUrl': '' })
 
 
-run(host='0.0.0.0', port=8080)
+run()
+ 
