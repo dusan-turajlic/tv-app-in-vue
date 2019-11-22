@@ -16,7 +16,7 @@ new Vue({
           let style = document.createElement( 'style' );
 
           function getCurrentResoScale() {
-              let documentWidth = document.body.offsetWidth;
+              let documentWidth = window.screen.width;
 
               return ( documentWidth / DESIGNED_WIDTH ) * 100;
           }
