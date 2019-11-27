@@ -43,7 +43,8 @@
 
                         if ( mediaItem.trailer ) {
                             util.xhr( { method: 'POST', route: '/api/slate', body: { trailerUrl: mediaItem.trailer } } ).then( ( response ) => {
-                                this.$refs.backdrop.src = response.slateUrl;
+                                let backdrop = get( this.$refs, 'backdrop', {} );
+                                backdrop.src = response.slateUrl;
                             } );
                         }
                     }, 750 );

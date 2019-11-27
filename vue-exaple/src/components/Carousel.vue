@@ -3,7 +3,7 @@
     <div class="carousel-title">{{title}}</div>
     <div ref="wrapper" class="wrapper" :style="'left:' + moveLeft + 'px'">
       <template v-for="child in children">
-        <MediaCard :key="child.id" ref="mediaCard" v-if="child" :media="child" :src="child.image.replace( '_UY1000', '_UY250' )" :name="child.title" :link="`/play/${child.type}/${child.id}`"></MediaCard>
+        <MediaCard :key="child.id" ref="mediaCard" v-if="child" :media="child" :src="child.image.replace( '_UY1000', '_UY500' )" :name="child.title" :link="`/play/${child.type}/${child.id}`"></MediaCard>
       </template>
     </div>
   </div>

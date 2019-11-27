@@ -1,7 +1,7 @@
 <template>
   <div class="video">
     <video class="video-item" ref="video"></video>
-    <div ref="videoControls" class="video-controls">
+    <div ref="videoControls" id="videoControls" class="video-controls">
       <div :class="statusClass"></div>
       <div class="tiem">{{timeFormatted}}</div>
       <div class="progress-bar">
@@ -94,7 +94,7 @@
                 }
             },
             showControls() {
-                let controls = this.$refs.videoControls;
+                let controls = document.querySelector( '#videoControls' ) || {};
                 controls.style = '';
 
                 if ( controlsTimer ) {
@@ -110,7 +110,7 @@
                     clearInterval( controlsTimer );
                 }
 
-                let controls = this.$refs.videoControls;
+                let controls = document.querySelector( '#videoControls' ) || {};
                 controls.style = 'top: 100%;';
             },
             exitPlayer() {
